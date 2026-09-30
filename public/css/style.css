@@ -1,0 +1,141 @@
+:root {
+    --color-pan: #b5651d;
+    --color-crema: #fdf6ec;
+    --color-texto: #3a2c1a;
+    --color-alerta: #d9534f;
+    --color-ok: #4a7c59;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--color-crema);
+    color: var(--color-texto);
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-pan);
+    color: white;
+    padding: 1rem 2rem;
+}
+
+.topbar nav a {
+    color: white;
+    margin-left: 1.2rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.brand img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    border: 2px solid rgba(255,255,255,0.6);
+    background: var(--color-crema);
+}
+
+.brand-text em {
+    font-style: normal;
+    color: #ffe0b2;
+    font-weight: 800;
+}
+
+.container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.login-box {
+    max-width: 360px;
+    margin: 4rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.login-box form { display: flex; flex-direction: column; gap: 0.6rem; }
+
+input, button {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+button {
+    background: var(--color-pan);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover { opacity: 0.9; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th { background: #f0e4d3; }
+
+.fila-alerta { background: #fdecea; }
+
+.tarjetas { display: flex; gap: 1rem; margin-bottom: 2rem; }
+
+.tarjeta {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.tarjeta h2 { margin: 0; color: var(--color-pan); font-size: 2rem; }
+
+.alert-error { color: var(--color-alerta); font-weight: 600; }
+.alert-ok { color: var(--color-ok); font-weight: 600; }
+
+.form-inline { display: flex; gap: 0.4rem; }
+.form-inline input { width: 70px; }
+
+.nuevo-producto {
+    background: white;
+    padding: 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.nuevo-producto h2 { margin: 0 0 0.8rem; font-size: 1.1rem; color: var(--color-pan); }
+
+.form-nuevo { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.form-nuevo input { flex: 1; min-width: 120px; }
+.form-nuevo button { min-width: 100px; }

@@ -1,0 +1,9 @@
+## PERSONAL 
+htaccess
+README.md
+TODO.md
+/sql/
+
+## Dependencias PHP (Composer)
+/vendor/
+composer.phar
