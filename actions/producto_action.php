@@ -17,6 +17,7 @@ $nombre = trim($_POST['nombre'] ?? '');
 $precio = (float)($_POST['precio'] ?? 0);
 $stock = (int)($_POST['stock'] ?? 0);
 $stockMinimo = (int)($_POST['stock_minimo'] ?? 0);
+$idCategoria = (int)($_POST['id_categoria'] ?? 0);
 
 if ($nombre === '' || $precio <= 0 || $stock < 0) {
     header('Location: ../public/inventario.php?error=campos');
@@ -28,9 +29,11 @@ $conn->begin_transaction();
 
 try {
     $stmt = $conn->prepare(
-        'INSERT INTO productos (nombre, precio, stock_actual, stock_minimo) VALUES (?, ?, ?, ?)'
+        'INSERT INTO productos (nombre, precio, stock_actual, stock_minimo, id_categoria)
+         VALUES (?, ?, ?, ?, ?)'
     );
-    $stmt->bind_param('sdii', $nombre, $precio, $stock, $stockMinimo);
+    $idCategoria = $idCategoria > 0 ? $idCategoria : null;
+    $stmt->bind_param('sdiii', $nombre, $precio, $stock, $stockMinimo, $idCategoria);
     $stmt->execute();
     $idProducto = $conn->insert_id;
 

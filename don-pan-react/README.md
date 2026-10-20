@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+# 🍞 Don Pan · Front-end (React + Vite)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Interfaz de la panadería **Don Pan**. Parte del sistema de gestión (evidencia
+**GA7-220501096-AA4-EV03**, SENA). Habla con el backend PHP del proyecto madre
+vía una API JSON autenticada por sesión.
 
-## Available Scripts
+## 🧰 Stack
 
-In the project directory, you can run:
+| Capa | Tecnología |
+|---|---|
+| UI | React 19 + React Router 7 |
+| Build | **Vite 8** (antes CRA; ver nota al final) |
+| Backend | PHP 8.2 + MariaDB (XAMPP), API en `../api/*.php` |
+| Estilos | CSS con variables de diseño propias (`src/styles/tokens.css`), sin frameworks externos ni CDNs |
 
-### `npm start`
+## ▶️ Requisitos
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* Node.js **20.19+** (Vite 8 lo exige) y npm
+* XAMPP con **Apache** (puerto 80) y **MySQL** (puerto 3306) corriendo
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⚙️ Instalación y ejecución
 
-### `npm test`
+```bash
+cd don-pan-react
+npm install
+npm run dev        # http://localhost:5173  (proxy /api -> Apache)
+npm run build      # genera dist/
+npm run preview    # sirve dist/ con el mismo proxy
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Arranca Apache y MySQL desde el panel de XAMPP.
+2. Abre `http://localhost:5173`.
+3. Entra con **`admin` / `1234`** (crear más usuarios en la app PHP).
 
-### `npm run build`
+> El proxy de Vite reescribe `/api` → `http://localhost/don_pan/api`
+> (ver `vite.config.js`). Así el navegador sólo ve un origen y la cookie de
+> sesión PHP funciona sin CORS. Para producción, usa `.env` (ver
+> `.env.example`).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🗂️ Estructura
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+don-pan-react/
+├── index.html                 # Punto de entrada (Vite, en la raíz)
+├── vite.config.js             # Proxy de la API + build sin source maps
+├── .env.example               # Plantilla de configuración (copiar a .env)
+├── public/                    # Estáticos + .htaccess de distribución
+└── src/
+    ├── main.jsx               # Montaje + importación de estilos globales
+    ├── App.jsx                # Rutas (lazy) y guardias
+    ├── styles/                # tokens / global / layout / componentes
+    ├── context/AuthContext.jsx# Estado de sesión en memoria
+    ├── services/api.js        # ÚNICO punto que llama a la API
+    ├── components/
+    │   ├── AppLayout.jsx      # Shell con sidebar y topbar
+    │   ├── ProtectedRoute.jsx # Guardia de autenticación y rol
+    │   ├── ErrorBoundary.jsx  # Recuperación ante errores de render
+    │   └── ui.jsx             # Piezas visuales compartidas
+    └── pages/                 # Login, Dashboard, Productos, Ventas...
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔐 Decisiones de seguridad
 
-### `npm run eject`
+| Tema | Decisión | Por qué |
+|---|---|---|
+| Sesión | Cookie **HttpOnly** de PHP; en JS sólo vive el perfil (nombre/rol) en `useState` | `localStorage` es legible por cualquier script: con XSS, un atacante robaría el token |
+| CSRF | Token por cabecera `X-CSRF-Token` en toda escritura | Requiere cabecera personalizada, imposible de forzar desde otra origen |
+| Autorización | `ProtectedRoute` en la UI **y** validación de sesión/rol en cada endpoint PHP | La UI nunca es autoridad: sin la capa servidor, basta con inspeccionar el código |
+| Enumeración | Error genérico «Usuario o contraseña incorrectos» | Revelar «ese usuario no existe» ayuda a adivinar cuentas |
+| Rate limit | 5 intentos → bloqueo de 1 minuto (sesión) | Fuerza bruta básica disuadida |
+| Contraseñas | `password_verify()` con bcrypt, jamás comparación de texto | Hashes con sal, resistentes a rainbow tables |
+| Tokens de sesión | `session_regenerate_id(true)` al autenticar | Evita *session fixation* |
+| CORS | Lista blanca en `api/bootstrap.php`, nunca `*` | Con credenciales, `*` invalida la protección |
+| Secretos | `.gitignore` bloquea **todos** los `.env`; sólo se versiona `.env.example` | Evita filtrar credenciales al repositorio |
+| Producción | `sourcemap: false`, CSP + `X-Frame-Options` vía `.htaccess`, `robots.txt: Disallow` | Menos superficie de ataque y sin fuga de código fuente |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+> La sesión se gestiona **igual** que en la app PHP original: mismo servidor,
+> mismo `session_start()`, mismos intentos fallidos. No hay dos sistemas de
+> autenticación en paralelo.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🧪 Verificación rápida de la API
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+# Estado de sesión (crea además el token CSRF)
+curl -c jar.txt http://localhost:5173/api/session.php
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Login (sustituye TOKEN por el valor de "csrf" anterior)
+curl -b jar.txt -c jar.txt -H "X-CSRF-Token: TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"usuario":"admin","password":"1234"}' \
+     http://localhost:5173/api/login.php
+```
 
-## Learn More
+## 📌 Nota sobre la migración
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+La versión anterior usaba `react-scripts` (Create React App) pero quedó en la
+versión fantasma `0.0.0`, que **no arranca nunca**: `npm start` y `npm build`
+fallaban. CRA está además archivado. Se migró a Vite conservando React 19 y las
+mismas rutas; el código de páginas no cambió de significado, sólo de formato.

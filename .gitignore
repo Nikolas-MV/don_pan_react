@@ -1,8 +1,9 @@
-## PERSONAL 
-htaccess
-README.md
-TODO.md
-/sql/
+## Personal
+# TODO.md y /sql/ SÍ se versionan: son documentación y el esquema de la base.
+# Sin ellos el repositorio no es reproducible.
+
+## Entorno local (nunca subir)
+.env
 
 ## Dependencias PHP (Composer)
 /vendor/

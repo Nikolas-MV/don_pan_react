@@ -17,9 +17,15 @@
     </div>
     <?php if (isLoggedIn()): ?>
         <nav>
+            <a href="dashboard.php">Inicio</a>
             <a href="ventas.php">Ventas</a>
+            <a href="historial_ventas.php">Historial</a>
+            <a href="productos.php">Productos</a>
             <a href="inventario.php">Inventario</a>
+            <a href="clientes.php">Clientes</a>
             <?php if (isOwner()): ?>
+                <a href="compras.php">Compras</a>
+                <a href="insumos.php">Insumos</a>
                 <a href="reportes.php">Reportes</a>
             <?php endif; ?>
             <a href="logout.php">Salir (<?= htmlspecialchars($_SESSION['nombre']) ?>)</a>

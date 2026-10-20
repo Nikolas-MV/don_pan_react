@@ -30,10 +30,20 @@ try {
     $stmtTurno->execute();
     $idTurno = $stmtTurno->get_result()->fetch_assoc()['id_turno'];
 
+    // Cliente opcional (Conexión 4: Cliente <-> Sistema)
+    $idCliente = (int)($_POST['id_cliente'] ?? 0);
+    $idCliente = $idCliente > 0 ? $idCliente : null;
+
+    $metodoPago = $_POST['metodo_pago'] ?? 'efectivo';
+    if (!in_array($metodoPago, ['efectivo', 'tarjeta', 'transferencia'], true)) {
+        $metodoPago = 'efectivo';
+    }
+
     $stmtVenta = $conn->prepare(
-        'INSERT INTO ventas (id_empleado, id_turno, total) VALUES (?, ?, 0)'
+        'INSERT INTO ventas (id_empleado, id_turno, id_cliente, total, metodo_pago)
+         VALUES (?, ?, ?, 0, ?)'
     );
-    $stmtVenta->bind_param('ii', $_SESSION['id_empleado'], $idTurno);
+    $stmtVenta->bind_param('iiss', $_SESSION['id_empleado'], $idTurno, $idCliente, $metodoPago);
     $stmtVenta->execute();
     $idVenta = $conn->insert_id;
 

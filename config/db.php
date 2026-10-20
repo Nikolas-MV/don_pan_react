@@ -13,6 +13,11 @@ define('DB_USER', getenv('DB_USER') ?: 'root');
 define('DB_PASS', getenv('DB_PASS') ?: '');
 define('DB_NAME', getenv('DB_NAME') ?: 'don_pan');
 
+// La zona horaria debe coincidir con la del servidor MySQL (hora local de
+// America/Bogota). Sin esto, PHP y MySQL pueden diferir por horas y los
+// reportes por fecha mostrarian el dia equivocado.
+date_default_timezone_set(getenv('APP_TIMEZONE') ?: 'America/Bogota');
+
 function getConnection(): mysqli
 {
     static $conn = null;
